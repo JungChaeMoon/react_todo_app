@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useCallback} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import TodoTemplate from "./components/TodoTemplate";
@@ -22,9 +22,30 @@ const App = () => {
       text: '일정 관리 앱 만들어 보기',
       checked: false,
     }
-
   ])
-  return <TodoTemplate><TodoInsert /><TodoList todos={todos}/></TodoTemplate>
+  const nextId = useRef(4);
+
+  const onInsert = useCallback(
+      text  => {
+        const todo = {
+          id:nextId.current,
+          text,
+          checked: false,
+        };
+        setTodos(todos.concat(todo));
+        nextId.current += 1;
+      },
+      [todos],
+  );
+
+  const onRemove = useCallback(
+      id => {
+        setTodos(todos.filter(todo => todo.id !== id));
+      },
+      [todos],
+  );
+
+  return <TodoTemplate><TodoInsert onInsert={onInsert}/><TodoList todos={todos} onRemove={onRemove}/></TodoTemplate>
 }
 
 export default App;
